@@ -3,21 +3,21 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
-  Activity, AlertCircle, ArrowDownRight, ArrowRight, ArrowUpRight,
-  Bell, CalendarClock, Check, ChevronDown, ChevronRight,
-  CircleHelp, CloudUpload, FileImage, Grid2X2, Instagram,
-  LayoutDashboard, LockKeyhole, LogOut, Menu, Plus,
-  Search, Settings2, ShieldCheck, Video, X,
+  Activity, AlertCircle, ArrowRight, Bell, CalendarClock,
+  Check, ChevronDown, ChevronRight, CircleHelp, CloudUpload,
+  FileImage, Grid2X2, Instagram, LayoutDashboard, LockKeyhole,
+  LogOut, Menu, Plus, Search, Settings2,
+  ShieldCheck, Video, X,
 } from "lucide-react";
 import { demoAccounts } from "@/lib/domain";
 import DashboardOverview from "./dashboard-overview";
 
 type PageKey = "Visão geral" | "Contas" | "Biblioteca" | "Nova publicação" | "Agendamentos" | "Histórico" | "Verificações" | "Configurações";
 const menu: { label: PageKey; icon: typeof LayoutDashboard; badge?: string }[] = [
-  { label: "Visão geral", icon: LayoutDashboard }, { label: "Contas", icon: Instagram, badge: "05" },
+  { label: "Visão geral", icon: LayoutDashboard }, { label: "Contas", icon: Instagram },
   { label: "Biblioteca", icon: FileImage }, { label: "Nova publicação", icon: Plus },
   { label: "Agendamentos", icon: CalendarClock }, { label: "Histórico", icon: Activity },
-  { label: "Verificações", icon: ShieldCheck, badge: "01" }, { label: "Configurações", icon: Settings2 },
+  { label: "Verificações", icon: ShieldCheck }, { label: "Configurações", icon: Settings2 },
 ];
 const formatNumber = (n: number) => new Intl.NumberFormat("pt-BR").format(n);
 
@@ -40,17 +40,13 @@ export default function Home({ organizationName, email }: { organizationName: st
     </aside>
 
     <section className="main-area">
-      <header className="topbar"><button className="mobile-menu icon-button" onClick={() => setMobileNav(true)}><Menu size={20}/></button><div className="breadcrumb">Workspace <ChevronRight size={14}/> <b>{page}</b></div><div className="top-actions"><div className="demo-pill"><span/> Ambiente de demonstração</div><button className="icon-button notification" aria-label="Notificações"><Bell size={18}/><i/></button><div className="top-avatar">GE</div></div></header>
+      <header className="topbar"><button className="mobile-menu icon-button" onClick={() => setMobileNav(true)}><Menu size={20}/></button><div className="breadcrumb">Workspace <ChevronRight size={14}/> <b>{page}</b></div><div className="top-actions"><div className="demo-pill"><span/> Dados do workspace</div><button className="icon-button notification" aria-label="Notificações"><Bell size={18}/><i/></button><div className="top-avatar">{email.slice(0,2).toUpperCase()}</div></div></header>
 
       {page === "Visão geral" ? <DashboardOverview period={period} setPeriod={setPeriod} onCompose={() => setComposeOpen(true)} setPage={setPage} /> : <div className="page-content"><SectionPage page={page} accounts={demoAccounts} setPage={setPage} setComposeOpen={setComposeOpen}/></div>}
     </section>
     {mobileNav && <button className="scrim" aria-label="Fechar menu" onClick={() => setMobileNav(false)}/>}
     {composeOpen && <ComposeModal onClose={() => setComposeOpen(false)} selected={selected} setSelected={setSelected} onSubmit={() => { setComposeOpen(false); setPage("Agendamentos"); }}/ >}
   </main>;
-}
-
-function MetricCard({ icon, label, value, delta, foot, trend, color, hint }: { icon: React.ReactNode; label: string; value: string; delta: string; foot: string; trend: "up" | "down" | "neutral"; color: string; hint: string }) {
-  return <div className="metric-card"><div className="metric-top"><div className={`metric-icon ${color}`}>{icon}</div><button className="hint-button" title={hint} aria-label={hint}><CircleHelp size={15}/></button></div><span className="metric-label">{label}</span><div className="metric-value-row"><strong>{value}</strong><span className={`metric-delta ${trend}`}>{trend === "up" ? <ArrowUpRight size={13}/> : trend === "down" ? <ArrowDownRight size={13}/> : null}{delta}</span></div><span className="metric-foot">{foot}</span></div>;
 }
 
 function SectionPage({ page, setPage, setComposeOpen }: { page: PageKey; accounts: typeof demoAccounts; setPage: (p: PageKey) => void; setComposeOpen: (v: boolean) => void }) {
