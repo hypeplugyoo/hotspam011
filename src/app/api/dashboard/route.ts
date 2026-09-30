@@ -59,7 +59,7 @@ export async function GET(request: Request) {
         [identity.organizationId, periodStart],
       ),
       db.query<{
-        id: string; title: string; kind: MetricSnapshot["metricName"] extends never ? never : "IMAGE" | "CAROUSEL" | "REEL";
+        id: string; title: string; kind: "IMAGE" | "CAROUSEL" | "REEL";
         username: string; createdAt: Date; publishedAt: Date | null; status: PublishStatus; views: string | number | null;
       }>(
         `SELECT p.id,
