@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   Activity, AlertCircle, ArrowDownRight, ArrowRight, ArrowUpRight, Bell, CalendarClock, Check,
@@ -8,7 +8,8 @@ import {
   Instagram, LayoutDashboard, ListFilter, LockKeyhole, LogOut, Menu, MessageSquareWarning, MoreHorizontal,
   Plus, Search, Settings2, ShieldCheck, Sparkles, Video, X,
 } from "lucide-react";
-import { demoAccounts, demoPosts, statusLabel, type PublishStatus } from "@/lib/domain";
+import { demoAccounts } from "@/lib/domain";
+import DashboardOverview from "./dashboard-overview";
 
 type PageKey = "Visão geral" | "Contas" | "Biblioteca" | "Nova publicação" | "Agendamentos" | "Histórico" | "Verificações" | "Configurações";
 const menu: { label: PageKey; icon: typeof LayoutDashboard; badge?: string }[] = [
@@ -24,12 +25,8 @@ export default function Home({ organizationName, email }: { organizationName: st
   const [page, setPage] = useState<PageKey>("Visão geral");
   const [composeOpen, setComposeOpen] = useState(false);
   const [selected, setSelected] = useState<string[]>(["a1", "a2", "a4"]);
-  const [search, setSearch] = useState("");
   const [period, setPeriod] = useState("Hoje");
   const [mobileNav, setMobileNav] = useState(false);
-  const [activeTab, setActiveTab] = useState("Todas");
-  const accountCount = demoAccounts.length;
-    const filteredPosts = useMemo(() => demoPosts.filter(p => `${p.title} ${p.account}`.toLowerCase().includes(search.toLowerCase())), [search]);
   const go = (label: PageKey) => { if (label === "Nova publicação") setComposeOpen(true); else setPage(label); setMobileNav(false); };
 
   return <main className="shell">
@@ -44,26 +41,7 @@ export default function Home({ organizationName, email }: { organizationName: st
     <section className="main-area">
       <header className="topbar"><button className="mobile-menu icon-button" onClick={() => setMobileNav(true)}><Menu size={20}/></button><div className="breadcrumb">Workspace <ChevronRight size={14}/> <b>{page}</b></div><div className="top-actions"><div className="demo-pill"><span/> Ambiente de demonstração</div><button className="icon-button notification" aria-label="Notificações"><Bell size={18}/><i/></button><div className="top-avatar">GE</div></div></header>
 
-      {page === "Visão geral" ? <div className="page-content">
-        <div className="page-heading"><div><div className="eyebrow">TERÇA-FEIRA, 29 DE SETEMBRO DE 2026 <span className="timezone">· America/São_Paulo</span></div><h1>Visão geral<span className="heading-period">{period}</span></h1><p>Acompanhe publicações e atividade das suas contas em um só lugar.</p></div><div className="heading-actions"><button className="button button-outline" onClick={() => setPeriod(period === "Hoje" ? "7 dias" : "Hoje")}><CalendarClock size={16}/>{period}<ChevronDown size={14}/></button><button className="button button-primary" onClick={() => setComposeOpen(true)}><Plus size={17}/> Nova publicação</button></div></div>
-        <div className="demo-notice"><Sparkles size={15}/><span><b>Dados de demonstração.</b> As publicações, contas e métricas desta tela são exemplos simulados, não dados do Instagram.</span><button onClick={() => setPage("Configurações")}>Sobre os dados <ArrowRight size={14}/></button></div>
-
-        <div className="metric-grid">
-          <MetricCard icon={<Activity size={17}/>} label="Visualizações geradas hoje" value="1.479" delta="12,8%" foot="observadas desde 08:12" trend="up" color="violet" hint="Variação dos contadores durante o dia. Não soma o total acumulado dos posts."/>
-          <MetricCard icon={<Check size={17}/>} label="Publicações concluídas" value="18" delta="8,3%" foot="em 4 contas" trend="up" color="green" hint="Cada post concluído em cada conta conta como uma publicação. Tentativas não entram."/>
-          <MetricCard icon={<Instagram size={17}/>} label="Contas que publicaram hoje" value="04" delta="de 5 contas" foot="1 conta aguarda verificação" trend="neutral" color="orange" hint="Conta apenas perfis com pelo menos uma publicação confirmada hoje."/>
-          <MetricCard icon={<AlertCircle size={17}/>} label="Precisam de atenção" value="03" delta="1 verificação" foot="2 falhas · 1 verificação" trend="neutral" color="pink" hint="Tarefas com falha ou aguardando uma ação humana."/>
-        </div>
-        <div className="format-strip"><div className="format-strip-title"><b>Publicações por formato</b><span>Categorias exclusivas · dados demo</span></div><div className="format-stat"><FileImage size={15}/><span>Imagens</span><b>05</b></div><div className="format-stat"><Grid2X2 size={15}/><span>Carrosséis</span><b>04</b></div><div className="format-stat"><Video size={15}/><span>Reels</span><b>09</b></div><div className="format-stat videos-total"><Video size={15}/><span>Total de vídeos</span><b>09</b></div></div>
-
-        <div className="content-grid">
-          <section className="panel chart-panel"><div className="panel-heading"><div><h2>Atividade de visualizações</h2><p>Aumento observado nos contadores durante o dia</p></div><button className="select-button" onClick={() => setPeriod(period === "Hoje" ? "7 dias" : "Hoje")}>{period}<ChevronDown size={14}/></button></div><div className="chart-total"><strong>1.479</strong><span className="positive"><ArrowUpRight size={14}/> 12,8%</span><small>visualizações observadas</small></div><div className="chart-wrap"><div className="chart-y"><span>1,5k</span><span>1k</span><span>500</span><span>0</span></div><div className="chart-area"><div className="grid-lines"><i/><i/><i/><i/></div><svg viewBox="0 0 760 190" preserveAspectRatio="none" role="img" aria-label="Gráfico demonstrativo de visualizações acumuladas durante o dia"><defs><linearGradient id="fill" x1="0" x2="0" y1="0" y2="1"><stop offset="0%" stopColor="#8057e8" stopOpacity=".20"/><stop offset="100%" stopColor="#8057e8" stopOpacity="0"/></linearGradient></defs><path d="M0,163 C24,157 32,166 52,148 S80,144 96,151 S123,140 144,132 S169,133 190,124 S216,135 238,115 S266,118 286,105 S313,114 334,98 S361,105 382,88 S410,102 430,84 S458,89 478,71 S508,80 525,68 S556,75 573,55 S601,68 620,47 S648,56 668,37 S698,51 715,24 S742,34 760,13 L760,190 L0,190 Z" fill="url(#fill)"/><path d="M0,163 C24,157 32,166 52,148 S80,144 96,151 S123,140 144,132 S169,133 190,124 S216,135 238,115 S266,118 286,105 S313,114 334,98 S361,105 382,88 S410,102 430,84 S458,89 478,71 S508,80 525,68 S556,75 573,55 S601,68 620,47 S648,56 668,37 S698,51 715,24 S742,34 760,13" fill="none" stroke="#8057e8" strokeWidth="3" vectorEffect="non-scaling-stroke" strokeLinecap="round"/></svg><div className="chart-x"><span>08:00</span><span>10:00</span><span>12:00</span><span>14:00</span><span>16:00</span><span>18:00</span></div></div></div><div className="chart-meta"><span><i className="legend-dot"/> Visualizações observadas</span><span>Última coleta: hoje, 16:48</span></div><div className="accumulated-note"><span>Posts publicados hoje</span><b>25.720</b><small>visualizações acumuladas · métrica separada</small></div></section>
-          <section className="panel coverage-panel"><div className="panel-heading"><div><h2>Cobertura dos dados</h2><p>Estado demonstrativo da coleta</p></div><button className="more-button" aria-label="Mais opções"><MoreHorizontal size={19}/></button></div><div className="coverage-number"><strong>4</strong><span>de {accountCount} contas atualizadas</span></div><div className="coverage-bar"><i style={{width:"80%"}}/></div><div className="coverage-stats"><div><span className="stat-dot dot-green"/>Dados recentes<strong>4 contas</strong></div><div><span className="stat-dot dot-amber"/>Coleta indisponível<strong>1 conta</strong></div></div><div className="coverage-foot"><Clock3 size={14}/> Atualização periódica, sem tempo real</div><button className="text-button" onClick={() => setPage("Contas")}>Ver contas <ArrowRight size={14}/></button></section>
-        </div>
-
-        <section className="panel activity-panel"><div className="panel-heading activity-heading"><div><h2>Atividade recente</h2><p>Publicações individuais por conta</p></div><div className="table-actions"><div className="search-box"><Search size={15}/><input value={search} onChange={e => setSearch(e.target.value)} placeholder="Buscar publicação"/></div><button className="filter-button" onClick={() => setActiveTab(activeTab === "Todas" ? "Concluídas" : "Todas")}><ListFilter size={15}/>{activeTab}</button><button className="text-button desktop-view" onClick={() => setPage("Histórico")}>Ver histórico <ArrowRight size={14}/></button></div></div><div className="table-scroll"><table><thead><tr><th>PUBLICAÇÃO</th><th>TIPO</th><th>CONTA</th><th>HORÁRIO</th><th>VISUALIZAÇÕES</th><th>STATUS</th><th></th></tr></thead><tbody>{filteredPosts.filter(p => activeTab === "Todas" || p.status === "PUBLISHED").map(post => <tr key={post.id}><td><div className="post-title"><div className={`post-thumb thumb-${post.kind.toLowerCase()}`}>{post.kind === "REEL" ? <Video size={16}/> : <FileImage size={16}/>}</div><b>{post.title}</b></div></td><td><span className={`type-tag type-${post.kind.toLowerCase()}`}>{post.kind === "IMAGE" ? "Imagem" : post.kind === "CAROUSEL" ? "Carrossel" : "Reel"}</span></td><td><span className="account-name"><span className="tiny-avatar">{post.account.slice(1,3).toUpperCase()}</span>{post.account}</span></td><td className="muted-cell">{post.time}</td><td>{post.views === null ? <span className="unavailable">Não disponível</span> : <span className="view-count">{formatNumber(post.views)} <small className="positive">+{post.delta}</small></span>}</td><td><Status status={post.status}/></td><td><button className="row-menu" aria-label="Opções"><MoreHorizontal size={18}/></button></td></tr>)}</tbody></table>{filteredPosts.length === 0 && <div className="empty-state">Nenhuma publicação encontrada.</div>}</div><div className="table-footer"><span>Exibindo {filteredPosts.length} de 18 publicações demonstrativas</span><div><button aria-label="Anterior"><ChevronLeft size={16}/></button><span className="current-page">1</span><button aria-label="Próxima"><ChevronRight size={16}/></button></div></div></section>
-        <div className="bottom-grid"><div className="bottom-note"><div className="note-icon"><MessageSquareWarning size={17}/></div><div><b>Resultados podem ficar incompletos</b><p>O Instagram pode não exibir contadores em todas as contas. A primeira leitura de posts antigos serve apenas como base para comparações futuras.</p></div><button onClick={() => setPage("Configurações")}><ArrowRight size={16}/></button></div><span className="footer-safe"><LockKeyhole size={13}/> Sessões protegidas · Retenção de capturas limitada</span></div>
-      </div> : <div className="page-content"><SectionPage page={page} accounts={demoAccounts} setPage={setPage} setComposeOpen={setComposeOpen}/></div>}
+      {page === "Visão geral" ? <DashboardOverview period={period} setPeriod={setPeriod} onCompose={() => setComposeOpen(true)} setPage={setPage} /> : <div className="page-content"><SectionPage page={page} accounts={demoAccounts} setPage={setPage} setComposeOpen={setComposeOpen}/></div>}
     </section>
     {mobileNav && <button className="scrim" aria-label="Fechar menu" onClick={() => setMobileNav(false)}/>}
     {composeOpen && <ComposeModal onClose={() => setComposeOpen(false)} selected={selected} setSelected={setSelected} onSubmit={() => { setComposeOpen(false); setPage("Agendamentos"); }}/ >}
@@ -73,7 +51,6 @@ export default function Home({ organizationName, email }: { organizationName: st
 function MetricCard({ icon, label, value, delta, foot, trend, color, hint }: { icon: React.ReactNode; label: string; value: string; delta: string; foot: string; trend: "up" | "down" | "neutral"; color: string; hint: string }) {
   return <div className="metric-card"><div className="metric-top"><div className={`metric-icon ${color}`}>{icon}</div><button className="hint-button" title={hint} aria-label={hint}><CircleHelp size={15}/></button></div><span className="metric-label">{label}</span><div className="metric-value-row"><strong>{value}</strong><span className={`metric-delta ${trend}`}>{trend === "up" ? <ArrowUpRight size={13}/> : trend === "down" ? <ArrowDownRight size={13}/> : null}{delta}</span></div><span className="metric-foot">{foot}</span></div>;
 }
-function Status({ status }: { status: PublishStatus }) { const cls = status === "PUBLISHED" ? "published" : status === "FAILED" ? "failed" : status === "NEEDS_VERIFICATION" ? "waiting" : status === "UNCERTAIN" ? "uncertain" : "queued"; return <span className={`status ${cls}`}><i/>{statusLabel[status]}</span>; }
 
 function SectionPage({ page, setPage, setComposeOpen }: { page: PageKey; accounts: typeof demoAccounts; setPage: (p: PageKey) => void; setComposeOpen: (v: boolean) => void }) {
   const [query,setQuery]=useState("");
