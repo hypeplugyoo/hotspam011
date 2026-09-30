@@ -3,10 +3,11 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
-  Activity, AlertCircle, ArrowDownRight, ArrowRight, ArrowUpRight, Bell, CalendarClock, Check,
-  ChevronDown, ChevronLeft, ChevronRight, CircleHelp, Clock3, CloudUpload, FileImage, Grid2X2,
-  Instagram, LayoutDashboard, ListFilter, LockKeyhole, LogOut, Menu, MessageSquareWarning, MoreHorizontal,
-  Plus, Search, Settings2, ShieldCheck, Sparkles, Video, X,
+  Activity, AlertCircle, ArrowDownRight, ArrowRight, ArrowUpRight,
+  Bell, CalendarClock, Check, ChevronDown, ChevronRight,
+  CircleHelp, CloudUpload, FileImage, Grid2X2, Instagram,
+  LayoutDashboard, LockKeyhole, LogOut, Menu, Plus,
+  Search, Settings2, ShieldCheck, Video, X,
 } from "lucide-react";
 import { demoAccounts } from "@/lib/domain";
 import DashboardOverview from "./dashboard-overview";
