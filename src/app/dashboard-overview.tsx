@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import type { ReactNode } from "react";
 import {
   Activity, AlertCircle, ArrowRight, CalendarClock, Check, ChevronDown, CircleHelp,
   Clock3, FileImage, Grid2X2, Instagram, ListFilter, RefreshCw, Search, Sparkles, Video,
@@ -43,6 +44,21 @@ const statusLabel: Record<PublishStatus, string> = {
   NEEDS_VERIFICATION: "Aguardando verificação", UNCERTAIN: "Resultado incerto", CANCELLED: "Cancelado",
 };
 
+type MetricCardProps = { icon: ReactNode; label: string; value: string; detail: string; foot: string; color: string; hint: string };
+function MetricCard({ icon, label, value, detail, foot, color, hint }: MetricCardProps) {
+  return <div className="metric-card">
+    <div className="metric-top"><div className={"metric-icon " + color}>{icon}</div><button className="hint-button" title={hint} aria-label={hint}><CircleHelp size={15}/></button></div>
+    <span className="metric-label">{label}</span>
+    <div className="metric-value-row"><strong>{value}</strong><span className="metric-delta neutral">{detail}</span></div>
+    <span className="metric-foot">{foot}</span>
+  </div>;
+}
+
+function Status({ status }: { status: PublishStatus }) {
+  const cls = status === "PUBLISHED" ? "published" : status === "FAILED" ? "failed" : status === "NEEDS_VERIFICATION" ? "waiting" : status === "UNCERTAIN" ? "uncertain" : "queued";
+  return <span className={"status " + cls}><i/>{statusLabel[status]}</span>;
+}
+
 export default function DashboardOverview({ period, setPeriod, onCompose, setPage }: Props) {
   const [data, setData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -51,7 +67,7 @@ export default function DashboardOverview({ period, setPeriod, onCompose, setPag
   const [search, setSearch] = useState("");
   const [activeTab, setActiveTab] = useState<"all" | "published">("all");
 
-  async function load(signal?: AbortSignal) {
+  const load = useCallback(async (signal?: AbortSignal) => {
     setError("");
     setRefreshing(true);
     try {
@@ -63,16 +79,18 @@ export default function DashboardOverview({ period, setPeriod, onCompose, setPag
       if (cause instanceof DOMException && cause.name === "AbortError") return;
       setError(cause instanceof Error ? cause.message : "Não foi possível carregar o painel.");
     } finally {
-      setLoading(false);
-      setRefreshing(false);
+      if (!signal?.aborted) {
+        setLoading(false);
+        setRefreshing(false);
+      }
     }
-  }
+  }, [period]);
 
   useEffect(() => {
     const controller = new AbortController();
     void load(controller.signal);
     return () => controller.abort();
-  }, [period]);
+  }, [load]);
 
   const recentPosts = data?.recentPosts ?? [];
   const filteredPosts = useMemo(() => recentPosts.filter(post => {
@@ -87,23 +105,6 @@ export default function DashboardOverview({ period, setPeriod, onCompose, setPag
     : views?.quality === "PARTIAL" ? "Cobertura parcial"
       : views?.quality === "CORRECTION" ? "Contador corrigido" : "Sem métricas reais";
   const today = data ? new Intl.DateTimeFormat("pt-BR", { weekday: "long", day: "2-digit", month: "long", timeZone: data.timezone }).format(new Date()) : "";
-
-  function MetricCard({ icon, label, value, detail, foot, color, hint }: {
-    icon: React.ReactNode; label: string; value: string; detail: string; foot: string; color: string; hint: string;
-  }) {
-    return <div className="metric-card">
-      <div className="metric-top"><div className={`metric-icon ${color}`}>{icon}</div><button className="hint-button" title={hint} aria-label={hint}><CircleHelp size={15}/></button></div>
-      <span className="metric-label">{label}</span>
-      <div className="metric-value-row"><strong>{value}</strong><span className="metric-delta neutral">{detail}</span></div>
-      <span className="metric-foot">{foot}</span>
-    </div>;
-  }
-
-  function Status({ status }: { status: PublishStatus }) {
-    const cls = status === "PUBLISHED" ? "published" : status === "FAILED" ? "failed"
-      : status === "NEEDS_VERIFICATION" ? "waiting" : status === "UNCERTAIN" ? "uncertain" : "queued";
-    return <span className={`status ${cls}`}><i/>{statusLabel[status]}</span>;
-  }
 
   return <div className="page-content">
     <div className="page-heading">
