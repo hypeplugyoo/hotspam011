@@ -88,15 +88,17 @@ export default function DashboardOverview({ period, setPeriod, onCompose, setPag
 
   useEffect(() => {
     const controller = new AbortController();
-    void load(controller.signal);
-    return () => controller.abort();
+    const timer = window.setTimeout(() => void load(controller.signal), 0);
+    return () => {
+      window.clearTimeout(timer);
+      controller.abort();
+    };
   }, [load]);
 
-  const recentPosts = data?.recentPosts ?? [];
-  const filteredPosts = useMemo(() => recentPosts.filter(post => {
+  const filteredPosts = useMemo(() => (data?.recentPosts ?? []).filter(post => {
     const matchesSearch = `${post.title} ${post.account}`.toLowerCase().includes(search.toLowerCase());
     return matchesSearch && (activeTab === "all" || post.status === "PUBLISHED");
-  }), [recentPosts, search, activeTab]);
+  }), [data?.recentPosts, search, activeTab]);
 
   const summary = data?.summary;
   const views = data?.views;
