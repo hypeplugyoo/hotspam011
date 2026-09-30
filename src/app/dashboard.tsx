@@ -19,8 +19,6 @@ const menu: { label: PageKey; icon: typeof LayoutDashboard; badge?: string }[] =
   { label: "Agendamentos", icon: CalendarClock }, { label: "Histórico", icon: Activity },
   { label: "Verificações", icon: ShieldCheck }, { label: "Configurações", icon: Settings2 },
 ];
-const formatNumber = (n: number) => new Intl.NumberFormat("pt-BR").format(n);
-
 export default function Home({ organizationName, email }: { organizationName: string; email: string }) {
   const router = useRouter();
   const [page, setPage] = useState<PageKey>("Visão geral");
